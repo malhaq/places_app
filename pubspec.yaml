@@ -9,8 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_dotenv: ^5.2.1
   flutter_riverpod: ^2.6.1
   google_fonts: ^6.2.1
+  http: ^1.2.2
   image_picker: ^1.1.2
   location: ^7.0.1
   permission_handler: ^11.3.1
