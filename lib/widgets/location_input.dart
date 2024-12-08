@@ -7,7 +7,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:places_app/model/place.dart';
 
 class LocationInput extends StatefulWidget {
-  const LocationInput({super.key});
+  const LocationInput({super.key, required this.onSelectLocation});
+
+  final void Function(PlaceLocation location) onSelectLocation;
 
   @override
   State<LocationInput> createState() {
@@ -18,6 +20,11 @@ class LocationInput extends StatefulWidget {
 class _LocationInputState extends State<LocationInput> {
   PlaceLocation? _pickedLocation;
   var _gettingLocation = false;
+  String get locationImage {
+    final lat = _pickedLocation!.latitude;
+    final lng = _pickedLocation!.longitude;
+    return 'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=16&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:A%7C$lat,$lng&key=${dotenv.env['GOOGLE_MAPS_API_KEY']}';
+  }
 
   void _getCurrentLocation() async {
     Location location = Location();
@@ -51,7 +58,7 @@ class _LocationInputState extends State<LocationInput> {
     final lat = locationData.latitude;
     final lng = locationData.longitude;
 
-    if(lat == null||lng == null){
+    if (lat == null || lng == null) {
       return;
     }
 
@@ -61,10 +68,11 @@ class _LocationInputState extends State<LocationInput> {
     final resData = json.decode(res.body);
     final address = resData['results'][0]['formatted_address'];
     setState(() {
-      _pickedLocation = PlaceLocation(address: address, latitude: lat, longitude: lng);
+      _pickedLocation =
+          PlaceLocation(address: address, latitude: lat, longitude: lng);
       _gettingLocation = false;
     });
-    
+    widget.onSelectLocation(_pickedLocation!);
   }
 
   @override
@@ -76,6 +84,14 @@ class _LocationInputState extends State<LocationInput> {
           ),
       textAlign: TextAlign.center,
     );
+    if (_pickedLocation != null) {
+      content = Image.network(
+        locationImage,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
     if (_gettingLocation) {
       content = const CircularProgressIndicator();
     }
